@@ -79,6 +79,8 @@ class TwoLayerNet(object):
     z = np.dot(X, W1) + b1 #layer1 계산 
     h = np.maximum(z,0) #Relu
     scores = np.dot(h, W2) + b2 #layer2 계산
+    #print(b1)
+    #print(b2)
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -96,12 +98,14 @@ class TwoLayerNet(object):
     # classifier loss.                                                          #
     #############################################################################
     sfm = np.exp(scores) #softmax 함수 사용 위해 각 score에 exp
+    #print(sfm)
+    #print(np.sum(sfm, axis=1).reshape(N,1))
     sfm /= np.sum(sfm, axis=1).reshape(N, 1) #각 exp의 합으로 나누어줌. axis=1 : 행 내 열끼리 합, reshape(N, 1) : N*1 배열로 변경
-
+    #print(sfm)
     loss = -np.sum(np.log(sfm[np.arange(N), y])) #log 취한 것 합해주고 batch size로 나눔. arrange:(0~n까지 하나씩.)
     loss /= N
 
-    loss += 0.5 * reg * (np.sum(W1**2) + np.sum(W2**2)) #Ls regularization (왜 0.5?)
+    loss += reg * (np.sum(W1**2) + np.sum(W2**2)) #Ls regularization
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -119,9 +123,9 @@ class TwoLayerNet(object):
     dz = dh * (z > 0) #(N, H)
 
     grads['W2'] = np.dot(h.T, dsfm) / N # (H, C)
-    grads['b2'] = np.sum(dsfm, axis=0) / N # (C, )
+    grads['b2'] = np.sum(dsfm, axis=0) / N # (, C)
     grads['W1'] = np.dot(X.T, dz) / N # (D, H)
-    grads['b1'] = np.sum(dz, axis=0) / N #(H, )
+    grads['b1'] = np.sum(dz, axis=0) / N #(, H)
 
     grads['W2'] += reg * W2
     grads['W1'] += reg * W1
